@@ -11,21 +11,7 @@
 #include "threads/synch.h"
 #include "threads/vaddr.h"
 
-/* Page allocator.  Hands out memory in page-size (or
-   page-multiple) chunks.  See malloc.h for an allocator that
-   hands out smaller chunks.
 
-   System memory is divided into two "pools" called the kernel
-   and user pools.  The user pool is for user (virtual) memory
-   pages, the kernel pool for everything else.  The idea here is
-   that the kernel needs to have memory for its own operations
-   even if user processes are swapping like mad.
-
-   By default, half of system RAM is given to the kernel pool and
-   half to the user pool.  That should be huge overkill for the
-   kernel pool, but that's just fine for demonstration purposes. */
-
-/* A memory pool. */
 struct pool
 {
     struct lock lock;        /* Mutual exclusion. */
@@ -33,15 +19,14 @@ struct pool
     uint8_t *base;           /* Base of pool. */
 };
 
-/* Two pools: one for kernel data, one for user pages. */
+
 static struct pool kernel_pool, user_pool;
 
 static void init_pool (struct pool *, void *base, size_t page_cnt,
                        const char *name);
 static bool page_from_pool (const struct pool *, void *page);
 
-/* Initializes the page allocator.  At most USER_PAGE_LIMIT
-   pages are put into the user pool. */
+
 void
 palloc_init (size_t user_page_limit)
 {
@@ -61,12 +46,7 @@ palloc_init (size_t user_page_limit)
                user_pages, "user pool");
 }
 
-/* Obtains and returns a group of PAGE_CNT contiguous free pages.
-   If PAL_USER is set, the pages are obtained from the user pool,
-   otherwise from the kernel pool.  If PAL_ZERO is set in FLAGS,
-   then the pages are filled with zeros.  If too few pages are
-   available, returns a null pointer, unless PAL_ASSERT is set in
-   FLAGS, in which case the kernel panics. */
+
 void *
 palloc_get_multiple (enum palloc_flags flags, size_t page_cnt)
 {
@@ -100,13 +80,7 @@ palloc_get_multiple (enum palloc_flags flags, size_t page_cnt)
     return pages;
 }
 
-/* Obtains a single free page and returns its kernel virtual
-   address.
-   If PAL_USER is set, the page is obtained from the user pool,
-   otherwise from the kernel pool.  If PAL_ZERO is set in FLAGS,
-   then the page is filled with zeros.  If no pages are
-   available, returns a null pointer, unless PAL_ASSERT is set in
-   FLAGS, in which case the kernel panics. */
+
 void *
 palloc_get_page (enum palloc_flags flags)
 {
